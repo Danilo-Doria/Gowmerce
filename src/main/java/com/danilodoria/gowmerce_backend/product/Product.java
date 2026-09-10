@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder // patrón Builder, que te permite construir objetos
+@Builder // patrón Builder, que permite construir objetos
 public class Product extends Auditable {
 
     @Id
@@ -39,6 +39,6 @@ public class Product extends Auditable {
     private String sku;
 
     @Column(nullable = false)
-    @Builder.Default // Es ya que, sin él, Lombok ignora el valor = true de active
+    @Builder.Default
     private Boolean active = true;
 }
