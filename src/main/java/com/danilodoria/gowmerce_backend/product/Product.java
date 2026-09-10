@@ -2,7 +2,6 @@ package com.danilodoria.gowmerce_backend.product;
 
 import com.danilodoria.gowmerce_backend.common.Auditable;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
