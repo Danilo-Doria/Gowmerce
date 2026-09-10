@@ -1,22 +1,45 @@
+# docker-compose.yml
+# Este archivo levanta la infraestructura local que tu app necesita para funcionar,
+# sin tener que instalar Postgres directamente en tu máquina.
+
 version: '3.8'
 
 services:
   postgres:
+    # Imagen oficial de Postgres, versión 16, variante "alpine" (más liviana, arranca más rápido)
     image: postgres:16-alpine
+
+    # Nombre fijo del contenedor, para poder referenciarlo fácil con `docker ps`, `docker logs`, etc.
     container_name: gowmerce-postgres
+
+    # Variables de entorno que la imagen oficial de Postgres usa
+    # para crear automáticamente la base de datos y el usuario en el primer arranque
     environment:
-      POSTGRES_DB: gowmerce_db
-      POSTGRES_USER: gowmerce_user
-      POSTGRES_PASSWORD: gowmerce_123
+      POSTGRES_DB: gowmerce_db          # nombre de la base de datos que se crea al iniciar
+      POSTGRES_USER: gowmerce_user      # usuario que tu app usará para conectarse
+      POSTGRES_PASSWORD: gowmerce_pass  # contraseña de ese usuario (solo para entorno local)
+
+    # Mapeo de puertos: <puerto_en_tu_maquina>:<puerto_dentro_del_contenedor>
+    # Así tu app (que corre fuera de Docker) puede conectarse a localhost:5432
     ports:
       - "5432:5432"
+
+    # Los volúmenes son la forma de PERSISTIR los datos en disco.
+    # Sin esto, cada vez que borres o recrees el contenedor, perderías toda la información.
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+    # Healthcheck: le permite a Docker (y a otras herramientas) saber si Postgres
+    # ya terminó de inicializar y está listo para aceptar conexiones,
+    # y no solo si el proceso "está corriendo" (que no es lo mismo).
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U gowmerce_user -d gowmerce_db"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      interval: 5s   # cada cuánto revisa
+      timeout: 5s    # cuánto espera antes de considerar que falló
+      retries: 5     # cuántos intentos antes de marcarlo como "unhealthy"
 
+# Declaración del volumen nombrado que usamos arriba.
+# Docker lo administra internamente; persiste aunque borres el contenedor
+# (solo se pierde si haces `docker-compose down -v` explícitamente).
 volumes:
   postgres_data:

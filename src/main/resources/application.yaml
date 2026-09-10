@@ -1,3 +1,40 @@
+# application.yml
+# Configuración principal de la aplicación Spring Boot.
+# Todo lo que empieza con "spring:" son propiedades que el propio framework
+# usa para configurarse (conexión a BD, JPA, etc.)
+
 spring:
   application:
-    name: Gowmerce
+    name: gowmerce-backend   # nombre lógico de la app; aparece en logs, métricas, etc.
+
+  # Configuración de la conexión a la base de datos
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gowmerce_db   # host:puerto/nombre_bd (debe coincidir con el docker-compose)
+    username: gowmerce_user
+    password: gowmerce_pass
+    driver-class-name: org.postgresql.Driver             # driver JDBC específico de Postgres
+
+  # Configuración de JPA / Hibernate (el ORM que traduce entidades Java <-> tablas SQL)
+  jpa:
+    hibernate:
+      # "validate" = Hibernate SOLO verifica que tus entidades coincidan con las tablas existentes,
+      # pero NUNCA crea ni modifica el esquema por su cuenta.
+      # La creación/modificación real de tablas la hace Flyway, de forma controlada y versionada.
+      ddl-auto: validate
+
+    show-sql: true   # imprime en consola el SQL real que Hibernate ejecuta (muy útil mientras aprendes)
+
+    properties:
+      hibernate:
+        format_sql: true   # el SQL impreso queda formateado/legible, no en una sola línea
+
+    # "false" = desactiva el patrón Open Session In View.
+    # Por defecto Spring mantiene la sesión de Hibernate abierta durante TODA la petición HTTP,
+    # lo cual facilita programar pero esconde problemas de performance (ej. N+1 queries)
+    # y mezcla responsabilidades entre capas. Lo correcto es cargar explícitamente
+    # lo que se necesita en la capa de servicio, no dejar que la vista dispare queries.
+    open-in-view: false
+
+# Configuración del servidor embebido (Tomcat, por defecto en Spring Boot)
+server:
+  port: 8080   # puerto en el que tu API va a escuchar peticiones
